@@ -1,5 +1,6 @@
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
+from keras.models import load_model
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.callbacks import ModelCheckpoint
@@ -17,6 +18,7 @@ img_size = img_width * img_height * 3
 
 train_data_dir = 'data'
 validation_data_dir = 'data'
+model_path = "model.h5"
 nb_train_samples = 1000
 nb_validation_samples = 100
 nb_epoch = 1000
@@ -24,6 +26,7 @@ nb_epoch = 1000
 import os.path
 import glob
 folder = glob.glob(train_data_dir+"/*")
+
 # each folder is a class
 # images of the same class is put in the same folder
 num_of_class = len(folder)
@@ -96,7 +99,11 @@ validation_generator = test_datagen.flow_from_directory(
         class_mode='categorical')
 
 # save to model when val_loss has improved
-checkpointer = ModelCheckpoint(filepath="model.h5", verbose=1, save_best_only=False)
+checkpointer = ModelCheckpoint(filepath=model_path, verbose=1, save_best_only=False)
+
+if os.path.isfile(model_path):
+    del model
+    model = load_model(model_path)
 
 model.fit_generator(
         train_generator,
